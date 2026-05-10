@@ -1,6 +1,7 @@
 Module 3 - Introduction to JavaFX
 Required
 - [ ] Chapter 17 in Programming in Java with ZyLabs
+      
 Recommended
 - [ ] GeeksforGeeks. (2021, April 19) JavaFX | CustomMenuItemLinks to an external site.. 
 - [ ] GeeksforGeeks. (2021, August 20) JavaFX | ComboBox with examplesLinks to an external site.. 

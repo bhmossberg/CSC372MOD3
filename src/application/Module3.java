@@ -7,82 +7,116 @@ import javafx.scene.control.Alert;
 import javafx.scene.Scene;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.Random;
 
 public class Module3 extends Application  {
-	/**
-	 * top bar that includes a menu
-	 * menu should have:
-	 * first menu option: Print date and time in a text box.
-	 * second menu option: write text box contents to a text file named "log.txt."
-	 * third menu option: change frame background color changes to random color hue of the color green
-	 * 		the menu option should display the initial random hue each time selected for a single execution of the program. 
-	 * fourth menu option then the program exits.
-	 */
+
+	private String timeStamp = "";
+    private final Random random = new Random();
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		primaryStage.setTitle("Menu Example");
-		// Create two menus to hold the four options
+		primaryStage.setTitle("Module 3 Critical Thinking");
+		
+		// Menu setup
 		Menu fileMenu = new Menu("File");
 		MenuItem pullTimeStamp = new MenuItem("Pull Date and Time");
 		MenuItem saveTimeStamp = new MenuItem("Save Date and Time");
 		MenuItem exitOption = new MenuItem("Exit");
-		fileMenu.getItems().add(pullTimeStamp);
-		fileMenu.getItems().add(saveTimeStamp);
-		fileMenu.getItems().add(exitOption);
-		
+		fileMenu.getItems().addAll(pullTimeStamp, saveTimeStamp, exitOption);
 		Menu colorMenu = new Menu("Color");
 		MenuItem changeColor = new MenuItem("Change Background");
 		colorMenu.getItems().add(changeColor);
-		// Create MenuBar and add Menus
+		// Add Menus to MenuBar
 		MenuBar menuBar = new MenuBar();
-		menuBar.getMenus().add(fileMenu);
-		menuBar.getMenus().add(colorMenu);
+		menuBar.getMenus().addAll(fileMenu, colorMenu);
 		
-		// TO DO: Create a text box object and add it to the window
-		// TO DO: Create IO logic and imports to create log.txt
-		// TO DO: create color generator function using random number generator to select green shade (randomize RGB: 0, random, 0)
-		// TO DO: create dialogs for successful accomplishment of log.txt creation, and to display initial random hue
-		// TO DO: Create Exit button logic 
+		// Text Box to display Time Stamp
+		TextArea timestampDisplay = new TextArea();
+	    timestampDisplay.setEditable(false);
+	    timestampDisplay.setWrapText(true);
+	    timestampDisplay.setPromptText("Timestamp will appear here...");
+	    // FIX ME: Text box fills entire window and background color not visible
+	    
+		// Event Handlers
 		
 		// Print date and time in a text box.
-		
+		pullTimeStamp.setOnAction(e -> {
+	        final String timeStamp = LocalDate.now() + " " + LocalTime.now();
+	        
+	        timestampDisplay.setText(timeStamp);   // Display in the text box
+	        
+	        Alert alert = new Alert(AlertType.INFORMATION, "Timestamp Updated:\n" + timeStamp);
+	        alert.showAndWait();
+	    });
 		
 		// Write text box contents to a text file named "log.txt."
-		String filePath = "log.txt";
-		try (PrintWriter pw = new PrintWriter(new FileWriter(filePath))) {
-			pw.println("Timestamp record:");
-			pw.println();
-			pw.println(timeStamp);
-	        Alert alert = new Alert(AlertType.INFORMATION, 
-	                "Timestamp written to " + filePath);
-	        alert.showAndWait();
-	        } catch (IOException e) {
-	        	Alert alert = new Alert(AlertType.ERROR, 
-	        			"Operation unsuccessful. log.txt not written.");
-	        	alert.showAndWait();
-	        }
-	    }
+		saveTimeStamp.setOnAction(e -> {
+            if (timeStamp.isEmpty()) {
+                Alert alert = new Alert(AlertType.WARNING, 
+                		"No timestamp pulled yet!\nPlease use 'Pull Date and Time' first.");
+                alert.showAndWait();
+                return;
+            }
+
+            String filePath = "log.txt";
+            try (PrintWriter pw = new PrintWriter(new FileWriter(filePath, true))) {
+                pw.println("=== Timestamp Record ===");
+                pw.println(timeStamp);
+                pw.println("Saved on: " + LocalDate.now() + " " + LocalTime.now());
+                pw.println("------------------------");
+
+                Alert alert = new Alert(AlertType.INFORMATION, 
+                		"Timestamp successfully saved to " + filePath);
+                alert.showAndWait();
+            } catch (IOException ex) {
+                Alert alert = new Alert(AlertType.ERROR, 
+                		"Failed to write to log.txt");
+                alert.showAndWait();
+            }
+        });
+		// FIX ME: does not detect text box fill
 
 		// Change frame background color
+		changeColor.setOnAction(e -> {
+            // Random green hue (between 80 and 140 for nice green tones)
+            double hue = 80 + random.nextDouble() * 60;
+            Color randomGreen = Color.hsb(hue, 0.7, 0.85);
+            
+            Scene scene = primaryStage.getScene();
+            if (scene != null) {
+                scene.setFill(randomGreen);
+            }
+
+            Alert alert = new Alert(AlertType.INFORMATION, 
+                "Background changed to random green hue.\nHue value: " + String.format("%.1f", hue));
+            alert.showAndWait();
+        });
 		
 		// Exit
-	    Alert alert = new Alert(AlertType.CONFIRMATION, 
-	            "Are you sure you want to exit?");
-	    alert.showAndWait();
+		exitOption.setOnAction(e -> {
+            Alert alert = new Alert(AlertType.CONFIRMATION, "Are you sure you want to exit?");
+            alert.showAndWait().ifPresent(response -> {
+                if (response == javafx.scene.control.ButtonType.OK) {
+                    primaryStage.close();
+                }
+            });
+        });
 	    
 	    
 		BorderPane root = new BorderPane();
 		root.setTop(menuBar);
+		root.setCenter(timestampDisplay);
 		Scene scene = new Scene(root, 600, 400, Color.GREEN);
 		primaryStage.setScene(scene);
 		primaryStage.show();

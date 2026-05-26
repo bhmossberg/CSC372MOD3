@@ -1,8 +1,6 @@
 package application;
 
 import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.control.Alert;
 import javafx.scene.Scene;
 import javafx.scene.control.Menu;
@@ -43,6 +41,8 @@ public class Module3 extends Application  {
 		
 		// Text Box to display Time Stamp
 		TextArea timestampDisplay = new TextArea();
+		timestampDisplay.setMaxWidth(300);
+		timestampDisplay.setMaxHeight(50);
 	    timestampDisplay.setEditable(false);
 	    timestampDisplay.setWrapText(true);
 	    timestampDisplay.setPromptText("Timestamp will appear here...");
@@ -52,7 +52,7 @@ public class Module3 extends Application  {
 		
 		// Print date and time in a text box.
 		pullTimeStamp.setOnAction(e -> {
-	        final String timeStamp = LocalDate.now() + " " + LocalTime.now();
+	        final String timeStamp = "Current Date and Time:\n" + LocalDate.now() + " " + LocalTime.now();
 	        
 	        timestampDisplay.setText(timeStamp);   // Display in the text box
 	        
@@ -117,7 +117,7 @@ public class Module3 extends Application  {
 		BorderPane root = new BorderPane();
 		root.setTop(menuBar);
 		root.setCenter(timestampDisplay);
-		Scene scene = new Scene(root, 600, 400, Color.GREEN);
+		Scene scene = new Scene(root, 500, 200, Color.GREEN);
 		primaryStage.setScene(scene);
 		primaryStage.show();
 	}

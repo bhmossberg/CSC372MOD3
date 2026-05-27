@@ -20,49 +20,45 @@ import java.util.Random;
 
 public class Module3 extends Application  {
 
-	private String timeStamp = "";
     private final Random random = new Random();
+    private TextArea timestampDisplay = new TextArea();
+    private double initialHue;
+    
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		primaryStage.setTitle("Module 3 Critical Thinking");
-		
 		// Menu setup
 		Menu fileMenu = new Menu("File");
 		MenuItem pullTimeStamp = new MenuItem("Pull Date and Time");
 		MenuItem saveTimeStamp = new MenuItem("Save Date and Time");
-		MenuItem exitOption = new MenuItem("Exit");
-		fileMenu.getItems().addAll(pullTimeStamp, saveTimeStamp, exitOption);
-		Menu colorMenu = new Menu("Color");
 		MenuItem changeColor = new MenuItem("Change Background");
-		colorMenu.getItems().add(changeColor);
+		MenuItem exitOption = new MenuItem("Exit");
+		Menu helpMenu = new Menu("Help");
+		MenuItem aboutOption = new MenuItem("About Me");
+		helpMenu.getItems().add(aboutOption);
+		fileMenu.getItems().addAll(pullTimeStamp, saveTimeStamp, changeColor, exitOption);
+
 		// Add Menus to MenuBar
 		MenuBar menuBar = new MenuBar();
-		menuBar.getMenus().addAll(fileMenu, colorMenu);
+		menuBar.getMenus().addAll(fileMenu, helpMenu);
 		
 		// Text Box to display Time Stamp
-		TextArea timestampDisplay = new TextArea();
 		timestampDisplay.setMaxWidth(300);
 		timestampDisplay.setMaxHeight(50);
 	    timestampDisplay.setEditable(false);
 	    timestampDisplay.setWrapText(true);
 	    timestampDisplay.setPromptText("Timestamp will appear here...");
-	    // FIX ME: Text box fills entire window and background color not visible
-	    
-		// Event Handlers
 		
 		// Print date and time in a text box.
 		pullTimeStamp.setOnAction(e -> {
-	        final String timeStamp = "Current Date and Time:\n" + LocalDate.now() + " " + LocalTime.now();
-	        
+	        final String timeStamp = "System Time:\n" + LocalDate.now() + " " + LocalTime.now();
 	        timestampDisplay.setText(timeStamp);   // Display in the text box
-	        
-	        Alert alert = new Alert(AlertType.INFORMATION, "Timestamp Updated:\n" + timeStamp);
-	        alert.showAndWait();
 	    });
 		
 		// Write text box contents to a text file named "log.txt."
 		saveTimeStamp.setOnAction(e -> {
-            if (timeStamp.isEmpty()) {
+			String content = timestampDisplay.getText().trim();
+            if (content.isEmpty()) {
                 Alert alert = new Alert(AlertType.WARNING, 
                 		"No timestamp pulled yet!\nPlease use 'Pull Date and Time' first.");
                 alert.showAndWait();
@@ -72,10 +68,7 @@ public class Module3 extends Application  {
             String filePath = "log.txt";
             try (PrintWriter pw = new PrintWriter(new FileWriter(filePath, true))) {
                 pw.println("=== Timestamp Record ===");
-                pw.println(timeStamp);
-                pw.println("Saved on: " + LocalDate.now() + " " + LocalTime.now());
-                pw.println("------------------------");
-
+                pw.println(content);
                 Alert alert = new Alert(AlertType.INFORMATION, 
                 		"Timestamp successfully saved to " + filePath);
                 alert.showAndWait();
@@ -85,22 +78,22 @@ public class Module3 extends Application  {
                 alert.showAndWait();
             }
         });
-		// FIX ME: does not detect text box fill
 
 		// Change frame background color
 		changeColor.setOnAction(e -> {
             // Random green hue (between 80 and 140 for nice green tones)
-            double hue = 80 + random.nextDouble() * 60;
-            Color randomGreen = Color.hsb(hue, 0.7, 0.85);
+            double randomHue = 80 + random.nextDouble() * 60;
+            Color randomGreen = Color.hsb(randomHue, 0.7, 0.85);
             
             Scene scene = primaryStage.getScene();
             if (scene != null) {
                 scene.setFill(randomGreen);
             }
-
+            // Display initial hue at each iteration
             Alert alert = new Alert(AlertType.INFORMATION, 
-                "Background changed to random green hue.\nHue value: " + String.format("%.1f", hue));
+                "Background green value changed to: " + String.format("%.1f", randomHue) + "\nInitial green value was: " + String.format("%.1f", initialHue));
             alert.showAndWait();
+            initialHue = randomHue;
         });
 		
 		// Exit
@@ -112,12 +105,21 @@ public class Module3 extends Application  {
                 }
             });
         });
-	    
+		// Help Option
+		aboutOption.setOnAction(e -> {
+	        Alert alert = new Alert(AlertType.INFORMATION, 
+	        		"Welcome the Benjamin Mossberg's Module 3 Submission v1.0!\n"
+	        		+ "Pull Date and Time outputs your current system time.\n"
+	        		+ "Save Date and Time saves that timestamp to current directory.\n"
+	        		+ "Change Background generates a different green background.");
+	        alert.showAndWait();
+	    });
 	    
 		BorderPane root = new BorderPane();
 		root.setTop(menuBar);
 		root.setCenter(timestampDisplay);
-		Scene scene = new Scene(root, 500, 200, Color.GREEN);
+		root.setStyle("-fx-background-color: transparent;");
+		Scene scene = new Scene(root, 500, 200);
 		primaryStage.setScene(scene);
 		primaryStage.show();
 	}
